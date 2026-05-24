@@ -48,7 +48,7 @@
         /* 4. MODALS */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(30px);
+            background: rgba(0,0,0,0.98); backdrop-filter: blur(30px);
             z-index: 1000; justify-content: flex-start; align-items: center;
             flex-direction: column; overflow-y: auto; padding: 60px 0;
         }
@@ -57,37 +57,37 @@
         .disco-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 90%; max-width: 800px; padding: 10px; }
         @media (min-width: 768px) { .disco-grid { grid-template-columns: repeat(4, 1fr); } }
 
-        .disco-item { text-align: center; cursor: pointer; transition: 0.3s; }
+        .disco-item { text-align: center; cursor: pointer; transition: 0.3s; pointer-events: auto; }
         .disco-item:hover { transform: scale(1.05); }
-        .disco-item img { width: 100%; border-radius: 10px; margin-bottom: 10px; }
+        .disco-item img { width: 100%; border-radius: 10px; margin-bottom: 10px; pointer-events: none; }
         
-        /* Project Glow Effect */
         .project-glow img { box-shadow: 0 0 25px rgba(77, 163, 255, 0.4); border: 1px solid rgba(77, 163, 255, 0.3); }
 
-        /* 5. SONG DETAIL VIEW */
+        /* 5. SONG DETAIL VIEW (HIGHEST Z-INDEX) */
         #detail-view {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 2000; padding: 40px;
+            background: #000; z-index: 5000; padding: 20px;
             justify-content: center; align-items: center;
+            overflow-y: auto;
         }
 
         .detail-content {
-            display: flex; flex-direction: column; max-width: 900px; width: 100%; gap: 40px;
+            display: flex; flex-direction: column; max-width: 900px; width: 100%; gap: 40px; padding: 40px 0;
         }
 
         @media (min-width: 768px) {
-            .detail-content { flex-direction: row; align-items: center; }
+            .detail-content { flex-direction: row; align-items: center; padding: 0; }
         }
 
-        .detail-img { width: 100%; max-width: 400px; aspect-ratio: 1/1; border-radius: 20px; box-shadow: 0 20px 80px rgba(0,0,0,0.8); }
+        .detail-img { width: 100%; max-width: 400px; aspect-ratio: 1/1; border-radius: 20px; box-shadow: 0 20px 80px rgba(0,0,0,0.8); object-fit: cover; }
         .detail-info { flex: 1; text-align: left; }
         .detail-info h1 { font-size: 2.5rem; margin-bottom: 20px; letter-spacing: 2px; }
-        .detail-info p { line-height: 1.6; opacity: 0.7; margin-bottom: 30px; font-weight: 300; }
+        .detail-info p { line-height: 1.6; opacity: 0.7; margin-bottom: 30px; font-weight: 300; font-size: 0.95rem; }
 
         .listen-btn {
             display: inline-block; padding: 15px 45px; background: #4da3ff; color: #000;
             text-decoration: none; font-weight: 700; border-radius: 50px; letter-spacing: 2px;
-            transition: 0.3s;
+            transition: 0.3s; text-align: center;
         }
         .listen-btn:hover { background: #fff; transform: scale(1.05); }
 
@@ -112,7 +112,7 @@
 
         <h2 class="section-header">Projects</h2>
         <div class="disco-grid">
-            <div class="disco-item project-glow" onclick="showDetail('ALBUM NAME', 'https://via.placeholder.com/400', 'This is the story of your album. Talk about the production process, the inspiration, or the SJSU roots behind the tracks.', 'https://spotify.com')">
+            <div class="disco-item project-glow" onclick="showDetail('ALBUM NAME', 'https://via.placeholder.com/400', 'This is the story of your album. Talk about the production process, the inspiration, or the SJSU roots behind the tracks.', '#')">
                 <img src="https://via.placeholder.com/200">
                 <p>ALBUM NAME</p>
             </div>
@@ -133,10 +133,10 @@
         <div class="detail-content">
             <img id="detail-image" src="" class="detail-img">
             <div class="detail-info">
-                <h1 id="detail-title">SONG TITLE</h1>
-                <p id="detail-text">Backstory goes here...</p>
+                <h1 id="detail-title">TITLE</h1>
+                <p id="detail-text">Story text...</p>
                 <a id="detail-link" href="#" target="_blank" class="listen-btn">LISTEN</a>
-                <p onclick="hideDetail()" style="margin-top:40px; opacity:0.4; cursor:pointer; font-size: 12px;">CLOSE STORY</p>
+                <p onclick="hideDetail()" style="margin-top:40px; opacity:0.4; cursor:pointer; font-size: 12px; letter-spacing: 2px;">CLOSE STORY</p>
             </div>
         </div>
     </div>
@@ -188,12 +188,16 @@
             m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
         }
 
+        // IMPROVED SHOW DETAIL LOGIC
         function showDetail(title, img, bio, link) {
             document.getElementById('detail-title').innerText = title;
             document.getElementById('detail-image').src = img;
             document.getElementById('detail-text').innerText = bio;
             document.getElementById('detail-link').href = link;
-            document.getElementById('detail-view').style.display = 'flex';
+            
+            const detailView = document.getElementById('detail-view');
+            detailView.style.display = 'flex';
+            detailView.scrollTop = 0; // Ensure it starts at the top
         }
 
         function hideDetail() {
