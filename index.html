@@ -14,10 +14,10 @@
         body, html {
             height: 100%;
             width: 100%;
-            background-color: #000; /* Dark background */
+            background-color: #000;
             color: #fff;
             font-family: 'Space Grotesk', sans-serif;
-            overflow: hidden; /* We handle scrolling in the containers below */
+            overflow: hidden;
         }
 
         /* 2. THE MAIN VERTICAL SCROLLER */
@@ -40,7 +40,7 @@
             position: relative;
         }
 
-        /* 3. THE HORIZONTAL SCROLLER (Inside first section) */
+        /* 3. THE HORIZONTAL SCROLLER */
         #h-scroller {
             display: flex;
             height: 100vh;
@@ -70,7 +70,6 @@
             transform: scale(0.8);
         }
 
-        /* This class is added by JavaScript when the item is centered */
         .release-box.active {
             filter: blur(0px);
             opacity: 1;
@@ -83,13 +82,12 @@
             aspect-ratio: 1/1;
             border-radius: 15px;
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            background: #111; /* Placeholder color if image fails */
+            background: #111;
         }
 
         /* 5. UI ELEMENTS (Pills, Audio, Socials) */
         .blue-pill {
             position: fixed;
-            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             padding: 15px 40px;
@@ -103,6 +101,15 @@
             letter-spacing: 2px;
             cursor: pointer;
             z-index: 100;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #social-pill { bottom: 30px; }
+        
+        #disco-pill { 
+            bottom: 100px; 
+            opacity: 0; 
+            visibility: hidden; 
         }
 
         .audio-btn {
@@ -125,8 +132,8 @@
             position: relative;
         }
 
-        /* 7. MODAL */
-        #social-modal {
+        /* 7. MODALS & GRIDS */
+        .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -137,25 +144,69 @@
             align-items: center;
             flex-direction: column;
         }
+
+        .disco-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
+            gap: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .disco-grid { grid-template-columns: repeat(4, 1fr); } /* 4 columns on PC */
+        }
+
+        .disco-item {
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+        .disco-item:hover { transform: scale(1.05); }
+        .disco-item img { width: 100%; border-radius: 10px; margin-bottom: 10px; }
+        .disco-item p { font-size: 10px; letter-spacing: 1px; }
+
     </style>
 </head>
 <body>
 
     <div class="audio-btn" onclick="playMusic()">SOUND: <span id="st">OFF</span></div>
-    <div class="blue-pill" onclick="openSocials()">SOCIALS</div>
+    
+    <div id="disco-pill" class="blue-pill" onclick="toggleModal('disco-modal')">DISCOGRAPHY</div>
+    
+    <div id="social-pill" class="blue-pill" onclick="toggleModal('social-modal')">SOCIALS</div>
 
-    <div id="social-modal">
+    <div id="social-modal" class="modal">
         <h1>CONNECT</h1>
-        <p onclick="window.open('https://instagram.com')">INSTAGRAM</p>
-        <p onclick="window.open('https://tiktok.com')">TIKTOK</p>
-        <p onclick="openSocials()" style="margin-top:40px; opacity:0.5; cursor:pointer;">BACK</p>
+        <p onclick="window.open('https://instagram.com')" style="cursor:pointer; margin: 10px;">INSTAGRAM</p>
+        <p onclick="window.open('https://tiktok.com')" style="cursor:pointer; margin: 10px;">TIKTOK</p>
+        <p onclick="toggleModal('social-modal')" style="margin-top:40px; opacity:0.5; cursor:pointer;">BACK</p>
+    </div>
+
+    <div id="disco-modal" class="modal">
+        <h1 style="margin-bottom: 20px; letter-spacing: 5px;">DISCOGRAPHY</h1>
+        <div class="disco-grid">
+            <a href="SONG_LINK_1" class="disco-item">
+                <img src="https://via.placeholder.com/200">
+                <p>SONG NAME 1</p>
+            </a>
+            <a href="SONG_LINK_2" class="disco-item">
+                <img src="https://via.placeholder.com/200">
+                <p>SONG NAME 2</p>
+            </a>
+            </div>
+        <p onclick="toggleModal('disco-modal')" style="margin-top:40px; opacity:0.5; cursor:pointer;">BACK</p>
     </div>
 
     <audio id="player" loop><source src="your-song.mp3" type="audio/mpeg"></audio>
 
     <main id="v-scroller">
         
-        <section class="v-section">
+        <section class="v-section" data-section="hub">
             <div id="h-scroller">
                 <div class="h-slide">
                     <div class="release-box">
@@ -178,7 +229,7 @@
             </div>
         </section>
 
-        <section class="v-section">
+        <section class="v-section" data-section="previous">
             <div class="release-box">
                 <img src="https://via.placeholder.com/400" class="cover-art">
                 <h2 style="margin-top:20px;">PREVIOUS SONG</h2>
@@ -190,6 +241,7 @@
     <script>
         const v = document.getElementById('v-scroller');
         const h = document.getElementById('h-scroller');
+        const discoPill = document.getElementById('disco-pill');
 
         // 1. CENTER THE HUB ON START
         window.addEventListener('load', () => {
@@ -205,8 +257,8 @@
         });
 
         // 3. UI FUNCTIONS
-        function openSocials() {
-            const m = document.getElementById('social-modal');
+        function toggleModal(id) {
+            const m = document.getElementById(id);
             m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
         }
 
@@ -217,17 +269,30 @@
             else { a.pause(); s.innerText = "OFF"; }
         }
 
-        // 4. FOCUS / BLUR OBSERVER
+        // 4. FOCUS / BLUR / PILL VISIBILITY OBSERVER
         const obs = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const box = entry.target.querySelector('.release-box');
-                if (entry.isIntersecting) box.classList.add('active');
-                else box.classList.remove('active');
+                
+                if (entry.isIntersecting) {
+                    box.classList.add('active');
+                    
+                    // Logic to show Discography pill only on the previous song section
+                    if (entry.target.dataset.section === "previous") {
+                        discoPill.style.opacity = "1";
+                        discoPill.style.visibility = "visible";
+                    } else {
+                        discoPill.style.opacity = "0";
+                        discoPill.style.visibility = "hidden";
+                    }
+                } else {
+                    box.classList.remove('active');
+                }
             });
         }, { threshold: 0.5 });
 
-        // Watch every section and slide
         document.querySelectorAll('.v-section, .h-slide').forEach(item => obs.observe(item));
     </script>
 </body>
+</html>
 </html>
